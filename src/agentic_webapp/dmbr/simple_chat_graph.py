@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 
 from langgraph.graph import (
-    MessagesState, StateGraph,
+    MessagesState,
+    StateGraph,
 )
 from langchain_anthropic import ChatAnthropic
 
-from agentic_webapp.dmbr.term import print_user_msg, print_assistant_msg, print_debug_msg
+from agentic_webapp.dmbr.llm import get_llm, LLMModel
+from agentic_webapp.dmbr.term import (
+    print_user_msg,
+    print_assistant_msg,
+    print_debug_msg,
+)
 
 
-llm = ChatAnthropic(model_name="claude-3-haiku-20240307")
+llm = get_llm(LLMModel.LLAMA31_8b)
+
 
 def chatbot(state: MessagesState):
-    return dict(
-        messages=llm.invoke(state["messages"])
-    )
+    return dict(messages=llm.invoke(state["messages"]))
 
 
 simple_chat_flow_builder = StateGraph(MessagesState)
