@@ -2,6 +2,7 @@
 
 
 from enum import Enum
+from functools import cache
 
 from langchain_anthropic import ChatAnthropic
 from langchain_groq import ChatGroq
@@ -21,12 +22,14 @@ class LLMModel(str, Enum):
     LLAMA3_8b = "llama3-8b-8192"
 
 
+@cache
 def get_llm(model_name: LLMModel):
     llm = {
         LLMModel.Claude3_Opus: ChatAnthropic(model_name=LLMModel.Claude3_Opus),
         LLMModel.Claude35_Sonnet: ChatAnthropic(model_name=LLMModel.Claude35_Sonnet),
         LLMModel.Claude3_Haiku: ChatAnthropic(model_name=LLMModel.Claude3_Haiku),
         LLMModel.GPT4_Omni: ChatOpenAI(model_name=LLMModel.GPT4_Omni),
+        LLMModel.GPT4_Omni_mini: ChatOpenAI(model_name=LLMModel.GPT4_Omni_mini),
         LLMModel.GPT35_Turbo: ChatOpenAI(model_name=LLMModel.GPT35_Turbo),
         LLMModel.LLAMA31_70b: ChatGroq(model_name=LLMModel.LLAMA31_70b),
         LLMModel.LLAMA31_8b: ChatGroq(model_name=LLMModel.LLAMA31_8b),

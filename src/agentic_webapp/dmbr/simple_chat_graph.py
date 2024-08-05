@@ -14,7 +14,7 @@ from agentic_webapp.dmbr.term import (
 )
 
 
-llm = get_llm(LLMModel.LLAMA31_8b)
+llm = get_llm(LLMModel.GPT4_Omni_mini)
 
 
 def chatbot(state: MessagesState):
