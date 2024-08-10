@@ -23,7 +23,15 @@ class AgentState(TypedDict):
 
 
 class Agent:
-    def __init__(self, name, model: LLMModel, system="", tools=[], output_structure=None, delegates: Dict[str, Any]=None):
+    def __init__(
+        self,
+        name,
+        model: LLMModel,
+        system="",
+        tools=[],
+        output_structure=None,
+        delegates: Dict[str, Any] = None,
+    ):
         print_debug_msg(f"Initializing agent with model {model}")
         self.system = system
         llm = get_llm(model)
@@ -57,7 +65,7 @@ class Agent:
         self.output_structure = output_structure
 
     def output_parser(self, state: AgentState):
-        print_debug_msg(f"Output parser with state {state['messages'][-1]}")
+        print_debug_msg(f"Output parser with state {state['messages']}")
         llm_with_output_structure = self.llm.with_structured_output(
             self.output_structure
         )
@@ -95,7 +103,9 @@ class Agent:
         print_debug_msg("Back to model after action")
         return {"messages": results}
 
-    def __call__(self, message: HumanMessage, stream=False, debug=False) -> Iterator[dict]:
+    def __call__(
+        self, message: HumanMessage, stream=False, debug=False
+    ) -> Iterator[dict]:
         if stream:
             results = self.graph.stream(dict(messages=message), debug=debug)
             return results
