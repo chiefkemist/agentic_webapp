@@ -12,7 +12,8 @@ from agentic_webapp.dmbr.llm import LLMModel
 from agentic_webapp.dmbr.term import (
     print_user_msg,
     print_debug_msg,
-    print_assistant_msg, print_error_msg,
+    print_assistant_msg,
+    print_error_msg,
 )
 from agentic_webapp.dmbr.tools import weather_icon, weather_prediction
 
@@ -32,7 +33,9 @@ class WeatherPrediction(BaseModel):
 
 
 class MultiLocationWeatherPrediction(BaseModel):
-    predictions_list: List[WeatherPrediction] = Field(..., alias="List of Weather Predictions")
+    predictions_list: List[WeatherPrediction] = Field(
+        ..., alias="List of Weather Predictions"
+    )
 
 
 class HumanFriendlyDescription(BaseModel):
@@ -51,7 +54,6 @@ class WeatherPredictionDescriptions(BaseModel):
 
 
 if __name__ == "__main__":
-
     weather_predict = Agent(
         "weather_predictor",
         LLMModel.GPT4_Omni,
@@ -61,7 +63,7 @@ if __name__ == "__main__":
         to illustrate the weather predictions. 
         """,
         [weather_icon, weather_prediction],
-        output_structure=MultiLocationWeatherPrediction
+        output_structure=MultiLocationWeatherPrediction,
     )
 
     user_input = "What's the weather like in Abidjan? Nairobi? Cotonou? Pretoria?"
@@ -69,7 +71,9 @@ if __name__ == "__main__":
     print_user_msg(user_input)
     if user_input.lower() in ["exit", "quit"]:
         print_debug_msg("Goodbye!")
-    for event in weather_predict(HumanMessage(content=user_input), stream=True, debug=True):
+    for event in weather_predict(
+        HumanMessage(content=user_input), stream=True, debug=True
+    ):
         for value in event.values():
             print_debug_msg(value)
             print_assistant_msg(f"Assistant: {value['messages']}")
@@ -79,4 +83,3 @@ if __name__ == "__main__":
             # except Exception as e:
             #     print_error_msg(e)
             #     print_error_msg(value['messages'])
-
