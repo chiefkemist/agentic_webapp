@@ -1,0 +1,149 @@
+#+title: Creating A Webapp and Refining Agent Processes with Langchain and Langgraph
+#+author: ChiefKemist
+#+date: <2024-08-05 Mon>
+
+
+* Improving the Ergonomics
+
+
+** Model selection
+
+#+begin_src python
+
+from enum import Enum
+from functools import cache
+
+from langchain_anthropic import ChatAnthropic
+from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+
+
+class LLMModel(str, Enum):
+    Claude3_Opus = "claude-3-opus-20240229"
+    Claude35_Sonnet = "claude-3-5-sonnet-20240620"
+    Claude3_Haiku = "claude-3-haiku-20240307"
+    GPT4_Omni = "gpt-4o"
+    GPT4_Omni_mini = "gpt-4o-mini"
+    GPT35_Turbo = "gpt-3.5-turbo"
+    LLAMA31_70b = "llama-3.1-70b-versatile"
+    LLAMA31_8b = "llama-3.1-8b-instant"
+    LLAMA3_70b = "llama3-70b-8192"
+    LLAMA3_8b = "llama3-8b-8192"
+
+
+@cache
+def get_llm(model_name: LLMModel):
+    llm = {
+        LLMModel.Claude3_Opus: ChatAnthropic(model_name=LLMModel.Claude3_Opus),
+        LLMModel.Claude35_Sonnet: ChatAnthropic(model_name=LLMModel.Claude35_Sonnet),
+        LLMModel.Claude3_Haiku: ChatAnthropic(model_name=LLMModel.Claude3_Haiku),
+        LLMModel.GPT4_Omni: ChatOpenAI(model_name=LLMModel.GPT4_Omni),
+        LLMModel.GPT4_Omni_mini: ChatOpenAI(model_name=LLMModel.GPT4_Omni_mini),
+        LLMModel.GPT35_Turbo: ChatOpenAI(model_name=LLMModel.GPT35_Turbo),
+        LLMModel.LLAMA31_70b: ChatGroq(model_name=LLMModel.LLAMA31_70b),
+        LLMModel.LLAMA31_8b: ChatGroq(model_name=LLMModel.LLAMA31_8b),
+        LLMModel.LLAMA3_70b: ChatGroq(model_name=LLMModel.LLAMA3_70b),
+        LLMModel.LLAMA3_8b: ChatGroq(model_name=LLMModel.LLAMA3_8b),
+    }.get(model_name, None)
+
+    if llm is None:
+        raise ValueError(f"Model {model_name} not found")
+
+    return llm
+
+#+end_src
+
+** Prompt Engineering
+
+Discuss Prompt Poet vs Langchain Hub here...
+
+* Streaming UIs
+
+** Python + Starlette + HTMX => FastHTML
+
+Not that different than what we are used to coming from FastAPI + Jinja2 + HTMX. Main difference is the nice Python DSL for HTML.
+
+*** Build HTML pages in Python
+
+TODO
+
+*** Use HTMX from within FastHTML
+
+TODO
+
+*** Render FastHTML to string
+
+
+#+begin_src python :results output
+
+from fasthtml.common import to_xml
+from fasthtml import P, Div, Article
+
+comp = to_xml(Article(Div("Lambert!", P("Rigobert"))))
+
+print(comp)
+
+#+end_src
+
+#+RESULTS:
+: <article>
+:   <div>
+: Lambert!
+:     <p>Rigobert</p>
+:   </div>
+: </article>
+:
+
+*** Streaming UIs requirements
+
+**** AsyncIO
+
+TODO
+
+**** Generators
+
+TODO
+
+**** Server Sent Events (SSE)
+
+TODO
+
+**** SSE Message
+
+#+begin_src python :results output
+
+from fasthtml.common import to_xml
+from fasthtml import Div
+
+def render_sse_html_chunk(event: str, id: str, chunk: str) -> bytes:
+    return f"""
+event: {event}
+data: {to_xml(Div(chunk, id=id, hx_swap_oob='true'))}\n\n
+""".encode("utf-8")
+
+sse_msg = render_sse_html_chunk("SomeEvent", "SomeID", "Chunk (string or html string or whatever data as string)")
+
+print(sse_msg)
+
+#+end_src
+
+#+RESULTS:
+: b'\nevent: SomeEvent\ndata: <div hx-swap-oob="true" id="SomeID">Chunk (string or html string or whatever data as string)</div>\n\n\n\n'
+
+**** Terminate Stream
+
+TODO
+
+
+* Prior Work on Streaming UIs
+
++ [[https://www.youtube.com/watch?v=nSMgm0YSLOA][UbuntuTechHive -- 🤖 Implementing a Custom Chatbot with OpenAI API and Python (2024-01-13)]]
++ [[https://www.youtube.com/watch?v=1I_oDsEDwa8][UbuntuTechHive -- 🤖 Implementing a Custom Chatbot with OpenAI API and Python Part-Deux (2024-01-27)]]
++ [[https://www.youtube.com/watch?v=NDuTWN5a_78][UbntTH -- Real-time Data Visualizations with Python, HTMX and LLM generated SQL queries (2024-06-01)]]
+
+* References
+
++ [[https://15799.courses.cs.cmu.edu/fall2013/static/papers/p135-malewicz.pdf][Pregel]]: A System for Large-Scale Graph Processing
++ [[https://smith.langchain.com/hub][LangChain Hub]]: Explore and contribute prompts to the community hub.
++ [[https://github.com/character-ai/prompt-poet?ref=research.character.ai][Prompt Poet]]: Streamlines and simplifies prompt design for both developers and non-technical users with a low code approach.
++ [[https://docs.fastht.ml/][FastHTML]]: The fastest, most powerful way to create an HTML app.
